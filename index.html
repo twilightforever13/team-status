@@ -34,34 +34,15 @@
   </div>
 
   <script type="module">
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDNWmAsN5T42IS0cNBGXVhhftjrwTPHwbs",
-  authDomain: "team-status-69147.firebaseapp.com",
-  databaseURL: "https://team-status-69147-default-rtdb.firebaseio.com",
-  projectId: "team-status-69147",
-  storageBucket: "team-status-69147.firebasestorage.app",
-  messagingSenderId: "546276935803",
-  appId: "1:546276935803:web:7a1980ee219aa38cb9fade"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyDNWmAsN5T42IS0cNBGXVhhftjrwTPHwbs",
+      authDomain: "team-status-69147.firebaseapp.com",
+      databaseURL: "https://team-status-69147-default-rtdb.firebaseio.com",
+      projectId: "team-status-69147",
+      storageBucket: "team-status-69147.firebasestorage.app",
+      messagingSenderId: "546276935803",
+      appId: "1:546276935803:web:7a1980ee219aa38cb9fade"
     };
-    // ===========================================
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -97,9 +78,7 @@ const app = initializeApp(firebaseConfig);
         sel.onchange = (e) => {
           const name = e.target.dataset.name;
           const newStatus = e.target.value;
-          const updates = {};
-          updates[name] = newStatus;
-          set(statusRef, { ...data, ...updates });
+          set(statusRef, { ...data, [name]: newStatus });
         };
       });
     }
@@ -109,11 +88,10 @@ const app = initializeApp(firebaseConfig);
       render(data);
       statusEl.textContent = "Live ✓ — changes sync for everyone";
     }, (err) => {
-      statusEl.textContent = "Connection error. Check Firebase rules and config.";
+      statusEl.textContent = "Connection error. Check Firebase rules.";
       console.error(err);
     });
 
-    // Initial empty render
     render();
   </script>
 </body>
