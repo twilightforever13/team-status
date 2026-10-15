@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Lunch Status Board</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 { text-align: center; color: #333; }
+    .note { text-align: center; color: #666; margin-bottom: 20px; font-size: 0.95em; }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-left: 6px solid #ccc;
+    }
+    .card.ready { border-left-color: #22c55e; }
+    .card.lunch { border-left-color: #f59e0b; }
+    .card.break { border-left-color: #3b82f6; }
+    .card.offline { border-left-color: #9ca3af; }
+    .name { font-weight: 600; margin-bottom: 8px; font-size: 1.05em; }
+    select {
+      width: 100%;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-size: 0.95em;
+    }
+    .legend {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 0.9em;
+    }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    #status { text-align: center; color: #888; font-size: 0.9em; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Team Status Board</h1>
+  <p class="note">Live for everyone on this link. Please only update your own status.<br>Statuses: Lunch · Break · Ready · Offline</p>
+  
+  <div id="board" class="board"></div>
+  <div id="status">Connecting…</div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:#22c55e"></span> Ready</span>
+    <span><span class="dot" style="background:#f59e0b"></span> Lunch</span>
+    <span><span class="dot" style="background:#3b82f6"></span> Break</span>
+    <span><span class="dot" style="background:#9ca3af"></span> Offline</span>
+  </div>
+
+  <script type="module">
+    const team = [
+      "TT-Lacey", "TT-Chris", "TT-Tyler", "TT-Kara",
+      "Damon", "Darin", "Domenic", "Eric", "Gideon", "Grant",
+      "Jaime", "Jarrod", "Jason", "Nick", "Quan", "Sachet",
+      "Shannon", "Skylar", "Suzanna", "Tim", "Tyler M"
+    ];
+
+    const statuses = ["Ready", "Lunch", "Break", "Offline"];
+    const board = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+
+    // Build the board immediately so something is always visible
+    function buildBoard(currentData = {}) {
+      board.innerHTML = team.map(name => {
+        const status = currentData[name] || "Ready";
+        const statusClass = status.toLowerCase();
+        return `
+          <div class="card ${statusClass}" data-name="${name}">
+            <div class="name">${name}</div>
+            <select data-name="${name}">
+              ${statuses.map(s => 
+                `<option value="${s}" ${s === status ? "selected" : ""}>${s}</option>`
+              ).join("")}
+            </select>
+          </div>
+        `;
+      }).join("");
+    }
+
+    buildBoard(); // Show everyone right away
+
+    try {
+      const { playhtml } = await import("https://unpkg.com/playhtml");
+      playhtml.init();
+
+      const defaultStatuses = {};
+      team.forEach(name => { defaultStatuses[name] = "Ready"; });
+
+      const statusChannel = playhtml.createPageData("teamStatuses", defaultStatuses);
+
+      function updateUI(data) {
+        // Update existing cards without full rebuild (keeps dropdown focus)
+        team.forEach(name => {
+          const status = data[name] || "Ready";
+          const card = board.querySelector(`[data-name="${name}"]`);
+          if (!card) return;
+          card.className = `card ${status.toLowerCase()}`;
+          const select = card.querySelector("select");
+          if (select && select.value !== status) {
+            select.value = status;
+          }
+        });
+      }
+
+      // Wire up changes
+      board.addEventListener("change", (e) => {
+        if (e.target.tagName === "SELECT") {
+          const name = e.target.dataset.name;
+          const newStatus = e.target.value;
+          statusChannel.setData((draft) => {
+            draft[name] = newStatus;
+          });
+        }
+      });
+
+      // Live updates
+      statusChannel.onUpdate(updateUI);
+      updateUI(statusChannel.getData());
+
+      statusEl.textContent = "Live ✓ — changes sync for everyone";
+    } catch (err) {
+      statusEl.textContent = "Live sync unavailable (still usable locally). Check console for details.";
+      console.error(err);
+    }
+  </script>
+</body>
+</html>
