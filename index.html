@@ -34,7 +34,24 @@
   </div>
 
   <script type="module">
-    // ===== PASTE YOUR FIREBASE CONFIG HERE =====
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDNWmAsN5T42IS0cNBGXVhhftjrwTPHwbs",
+  authDomain: "team-status-69147.firebaseapp.com",
+  databaseURL: "https://team-status-69147-default-rtdb.firebaseio.com",
+  projectId: "team-status-69147",
+  storageBucket: "team-status-69147.firebasestorage.app",
+  messagingSenderId: "546276935803",
+  appId: "1:546276935803:web:7a1980ee219aa38cb9fade"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "YOUR_PROJECT.firebaseapp.com",
